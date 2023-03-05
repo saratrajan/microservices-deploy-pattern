@@ -7,6 +7,11 @@ spec:
   selector:
     matchLabels:
       app: user
+  strategy:
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+  type: RollingUpdate
   template:
     metadata:
       labels:
@@ -24,6 +29,22 @@ spec:
           limits:
             cpu: 500m
             memory: 200Mi
+        livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          imagePullSecrets:
+          - name: my-registry-secret
+        terminationGracePeriodSeconds: 30
+        progressDeadlineSeconds: 600
       restartPolicy: Always
 ---
 apiVersion: v1
